@@ -21,6 +21,7 @@ static struct option long_options[] = {
         { 0,            0,                      0, 0 },
 };
 
+
 /*******************信号处理函数*************************/
 
 void signal_handler (int signo)
@@ -33,6 +34,7 @@ void signal_handler (int signo)
 			shm_write(shm_send,shared[0],sem_2);
 		break;
 		case SIGINT:
+#if ALG_CTRL
 			if(shmaddr[0] != NULL){
 				if(shmdt(shmaddr[0]) < 0)
 				{
@@ -65,7 +67,9 @@ void signal_handler (int signo)
 			}
 
 			isRunningFlag = 0;
-
+#endif
+			EC_ReleaseMaster();
+		        munlockall();
 			printf("sudo killall -9 %s\n", g_old_file_name);
 			memset(cmd, 0, sizeof(cmd));
                         sprintf(cmd,"sudo killall -9 %s", g_old_file_name);
@@ -102,6 +106,7 @@ void killchild_handler (int signo)
 			memset(cmd, 0, sizeof(cmd));
 			sprintf(cmd,"kill -9 %d",getpid());
 			system(cmd);
+                        system("sudo killall -9 cSPACEServer4.1");
 		break;
 	}
 }
@@ -196,45 +201,63 @@ void ethercat_ctrl_cmd(void *arg)
 	printf(">>ethercat_ctrl_cmd running:\n");
 	Motor_ctrl m_ctrl;
 	m_ctrl = *((Motor_ctrl *)arg);
-
-#if debug
-	for(int i = 0; i< JOINTS_NUM; i++){
-		printf("m_ctrl.jo[%d]:%d\n",i, m_ctrl.jo[i]);
-		printf("m_ctrl.angle[%d]:%d\n",i, m_ctrl.angle[i]);
-	}
-#endif
-
+	
 /**********************EtherCat参数配置和启动*********************************/
 	struct timespec wakeupTime, time;
-	memset(&wakeupTime, 0, sizeof(struct timespec));
-	memset(&time, 0, sizeof(struct timespec));
-
+	memset(&wakeupTime,0,sizeof(struct timespec));
+	memset(&time,0,sizeof(struct timespec));
+	
 	if (mlockall(MCL_CURRENT | MCL_FUTURE) == -1) {
 		perror("mlockall failed");
-		return;
+		return ;
 	}
-
+	
 	g_MS_WorkStatus = MS_POWER_ON;
-    	if(g_MS_WorkStatus == MS_POWER_ON){
+    if(g_MS_WorkStatus == MS_POWER_ON){
 		EC_ActivateMaster();			        //激活主站
-        	g_MS_WorkStatus = MS_SAFE_MODE;
-    	}
+        g_MS_WorkStatus = MS_SAFE_MODE;
+    }
 
-    	// get current time
+    // get current time
+    clock_gettime(CLOCK_TO_USE, &wakeupTime);
+
+/*****************************************************************************/	
+    memset(&msg_recv, 0,sizeof(Msg));
+	memset(&msg_send, 0,sizeof(Msg));
+	
 	while(1)
-	{
-    		clock_gettime(CLOCK_TO_USE, &wakeupTime);
+	{	
+		//sem_wait(&sem_2);
+		
+		//sem_post(&sem_1);
+#if 0
+		if(msgrcv(msgid[0], &msg_recv, sizeof(Msg_info)*JOINTS_NUM, TYPE_RECV, IPC_NOWAIT) < 0){			// 以非阻塞的方式接收类型为 type 的消息
+			if (errno != ENOMSG) {				// 如果消息接收完毕就退出，否则报错并退出
+				//printf(">>>>>>>msg_recv fail!");
+			}
+		}
+#endif
+		
 		EC_CyclicTask(&wakeupTime, &time, &m_ctrl);
+#if 0
+		
+		msg_send.type = TYPE_SEND;
+		if(msgsnd(msgid[1], &msg_send, sizeof(Msg_info)*JOINTS_NUM, IPC_NOWAIT)<0){
+			//printf(">>>>>>>msg_send fail!");
+		}
+#endif
 	}
 	EC_ReleaseMaster();
 	munlockall();
-	return;
+	//pthread_exit(NULL);
 }
 
+//Motor_ctrl m_ctrl;
 int main(int argc, char *argv[])
 {
 	pid_t pid;
 	Motor_ctrl m_ctrl;
+
 #if ALG_CTRL
 	pid_t pid_child = getpid();
 #endif
@@ -246,7 +269,7 @@ int main(int argc, char *argv[])
         return -1;
     }
     else if(pid==0)//子进程
-    {
+    {			
 #if ALG_CTRL
 		pid_child=getpid();
 #endif
@@ -382,6 +405,7 @@ __CLIENT_SOCKT:
 		//解析命令行
 		para_cmdline(argc,argv,&m_ctrl);
 
+#if ALG_CTRL
 		/*********************************************************/
 		shmaddr[0] = init_shm(&shmid[0],SHM_PATH_A,sizeof(Shm_Queue_t));
 		shmaddr[1] = init_shm(&shmid[1],SHM_PATH_B,sizeof(Shm_Queue_t));
@@ -394,7 +418,6 @@ __CLIENT_SOCKT:
 		
 		//1ms定时器
 		set_timer(0,PERIOD_NS/1000);
-	#if 1
 	/**********************EtherCat参数配置和启动*********************************/
 		struct timespec wakeupTime;
 		struct timespec  time;
@@ -416,13 +439,9 @@ __CLIENT_SOCKT:
 		clock_gettime(CLOCK_TO_USE, &wakeupTime);
 
 	/*****************************************************************************/	
-	#endif
-		
 		memset(&shm_recv, 0,sizeof(Shm));
 		memset(&shm_send, 0,sizeof(Shm));
 		isRunningFlag = 1;
-		
-#if ALG_CTRL
 		printf("%s:%d,isRunningFlag:%d\n",__FUNCTION__,__LINE__, isRunningFlag);
 		while(isRunningFlag && !waitpid(pid, NULL, WNOHANG))
 		{	

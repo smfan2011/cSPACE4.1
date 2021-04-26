@@ -1,0 +1,10 @@
+/home/fsm/cSPACEServer4.1
+===============================
+x86linuxcompiletest4
+===============================
+xxxxxxxxx enter compilexxxxxxxxxxxxxxxxxxx
+mkdir -p /home/fsm/deploy/prj/x86linuxcompiletest4
+unzip  x86linuxcompiletest4 -d /home/fsm/deploy/prj/x86linuxcompiletest4
+cd /home/fsm/deploy/prj/x86linuxcompiletest4
+gcc -DMODEL=x86linuxcompiletest4 -DNUMST=2 -DNCSTATES=0 -DHAVESTDIO -DRT -DUSE_RTMODEL -DCLASSIC_INTERFACE=0 -DALLOCATIONFCN=0 -DTID01EQ=0 -DMAT_FILE=1 -DONESTEPFCN=1 -DTERMFCN=1 -DMULTI_INSTANCE_CODE=0 -DINTEGER_CODE=0 -DMT=0
+success
