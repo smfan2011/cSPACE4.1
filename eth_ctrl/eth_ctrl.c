@@ -256,8 +256,8 @@ void EC_CyclicTask(struct timespec *wakeupTime, struct timespec *time, Motor_ctr
 		counter--;
 	} 
 	else { // do this at 1 Hz
-		counter = FREQUENCY;
-		//counter = 1000;
+		//counter = FREQUENCY;
+		counter = 1000;
 		// check for master state (optional)
 		check_master_state();
 		check_slave_config_states();
@@ -585,7 +585,7 @@ int EC_ConfigPDO()
 		ecrt_sdo_request_timeout(request[i], 1000); // ms
 		#endif
 		// configure SYNC signals for this slave
-		ecrt_slave_config_dc(sc[i], 0x0330, 1000000, 4400000, 0, 0);
+		ecrt_slave_config_dc(sc[i], 0x0330, 1000000, 44000, 0, 0);
 		//用完就释放
 		free(domain_regs[i]);
 	}

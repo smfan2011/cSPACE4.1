@@ -69,7 +69,7 @@
 #define SHM_FLAG 'f'
 #define Q_SIZE	(128)
 
-#define PERIOD_NS (1000000L)   //同步周期ms
+#define PERIOD_NS (1*1000000L)   //同步周期ms
 
 #define ALG_CTRL		0       //1 算法控制,0 command control
 #define SENSOR_6D		1		//6维力传感器

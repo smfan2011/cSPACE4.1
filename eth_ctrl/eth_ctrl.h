@@ -14,7 +14,7 @@
 
 /****************************************************************************/
 // Application parameters
-#define FREQUENCY 500
+//#define FREQUENCY 500
 #define CLOCK_TO_USE CLOCK_REALTIME
 #define MEASURE_TIMING
 
@@ -31,7 +31,7 @@
 
 #define NSEC_PER_SEC (1000000000L)
 #if (ALG_CTRL == 0)
-#define PERIOD_NS (NSEC_PER_SEC / FREQUENCY)
+//#define PERIOD_NS (NSEC_PER_SEC / FREQUENCY)
 #endif
 
 #define DIFF_NS(A, B) (((B).tv_sec - (A).tv_sec) * NSEC_PER_SEC + \
