@@ -32,7 +32,7 @@ cd  ${HOME}/deploy/prj/${dirName}
 
 compilerDefs=`cat defines.txt`
 echo "gcc ${compilerDefs}" >> ${LogName}
-gcc ${compilerDefs} *.c -lm -o ${dirName}.elf>> ${LogName} 2>&1
+gcc ${compilerDefs} *.c -lm -lpthread -o ${dirName}.elf>> ${LogName} 2>&1
 
 build_result=$?
 if [ "${build_result}" -eq "1" ];then

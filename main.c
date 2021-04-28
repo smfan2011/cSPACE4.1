@@ -407,8 +407,8 @@ __CLIENT_SOCKT:
 
 #if ALG_CTRL
 		/*********************************************************/
-		shmaddr[0] = init_shm(&shmid[0],SHM_PATH_A,sizeof(Shm_Queue_t));
-		shmaddr[1] = init_shm(&shmid[1],SHM_PATH_B,sizeof(Shm_Queue_t));
+		shmaddr[0] = init_shm(&shmid[0],SHM_PATH_A,sizeof(Shm_Queue_t), SHM_FLAG_A);
+		shmaddr[1] = init_shm(&shmid[1],SHM_PATH_B,sizeof(Shm_Queue_t), SHM_FLAG_B);
 		
 		shared[0]=(Shm_Queue_t *)shmaddr[0];
 		shared[1]=(Shm_Queue_t *)shmaddr[1];

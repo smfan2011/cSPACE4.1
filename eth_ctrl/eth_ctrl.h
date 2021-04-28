@@ -14,7 +14,7 @@
 
 /****************************************************************************/
 // Application parameters
-//#define FREQUENCY 500
+//#define FREQUENCY 1000
 #define CLOCK_TO_USE CLOCK_REALTIME
 #define MEASURE_TIMING
 

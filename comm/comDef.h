@@ -54,7 +54,7 @@
 
 /*消息队列key值路径，标识*/
 #define MSG_SND_PATH "/etc"
-#define MSG_RCV_PATH "./"
+#define MSG_RCV_PATH "/bin"
 #define MSG_FLAG 'f'
 
 /*消息队列类型*/
@@ -66,12 +66,13 @@
 /*共享内存Key值路径，标识*/
 #define SHM_PATH_A "/etc"
 #define SHM_PATH_B "/bin"
-#define SHM_FLAG 'f'
+#define SHM_FLAG_A 'a'
+#define SHM_FLAG_B 'b'
 #define Q_SIZE	(128)
 
 #define PERIOD_NS (1*1000000L)   //同步周期ms
 
-#define ALG_CTRL		0       //1 算法控制,0 command control
+#define ALG_CTRL		1       //1 算法控制,0 command control
 #define SENSOR_6D		1		//6维力传感器
 #define MECH_GRIP		0		//机械夹爪
 
@@ -215,7 +216,7 @@ Shm shm_send; //共享内存结构体
 Shm shm_recv; //共享内存结构体
 
 int set_timer(long tv_sec,long tv_usec);
-void* init_shm(int *shmid, const char *pathname, int size);
+void* init_shm(int *shmid, const char *pathname, int size, char flag);
 int del_shm(void *shm);
 int destory_shm(int shmid);
 int shm_write(Shm shm_send,Shm_Queue_t *shared,sem_t *sem);

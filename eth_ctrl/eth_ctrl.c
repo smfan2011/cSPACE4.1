@@ -235,6 +235,8 @@ void EC_CyclicTask(struct timespec *wakeupTime, struct timespec *time, Motor_ctr
 {
 	int i=0;
 	uint8_t model_type[JOINTS_NUM];
+	unsigned long long int u32_pos = 0;
+
 #if (ALG_CTRl == 0)
 	
 	*wakeupTime = timespec_add(*wakeupTime, cycletime);
@@ -311,6 +313,15 @@ void EC_CyclicTask(struct timespec *wakeupTime, struct timespec *time, Motor_ctr
 			if(g_model_type[i] == MODEL_PP || g_model_type[i] == MODEL_CSP || g_model_type[i] == MODEL_PV || g_model_type[i] == MODEL_CSV || g_model_type[i] == MODEL_PT|| g_model_type[i] == MODEL_CST){
 				Pos_act_value[i]=EC_READ_S32(domain_pd[i] + TechservoDrive[i].pdo_conf.slave_6064_00);  //读取实际位置		
 				shm_send.JointInfo[i].pdo_val.actual_pos = Pos_act_value[i];							//当前位置发送to算法	
+#if 0
+				if(i == 0){
+					u32_pos++;
+					if(u32_pos == 500000000){
+						printf("shm_send.JointInfo[%d].pdo_val.actual_pos:%d\n", i, shm_send.JointInfo[i].pdo_val.actual_pos);
+						u32_pos = 0;
+					}
+				}
+#endif
 				Vel_act_value[i]=EC_READ_S32(domain_pd[i] + TechservoDrive[i].pdo_conf.slave_606c_00);  //读取实际速度		
 				shm_send.JointInfo[i].pdo_val.actual_vel = Vel_act_value[i];							//当前速度发送to算法	
 				Torq_act_value[i]=EC_READ_S32(domain_pd[i] + TechservoDrive[i].pdo_conf.slave_6077_00);  //读取实际力矩		
@@ -585,7 +596,7 @@ int EC_ConfigPDO()
 		ecrt_sdo_request_timeout(request[i], 1000); // ms
 		#endif
 		// configure SYNC signals for this slave
-		ecrt_slave_config_dc(sc[i], 0x0330, 1000000, 44000, 0, 0);
+		ecrt_slave_config_dc(sc[i], 0x0330, PERIOD_NS, 44000, 0, 0);
 		//用完就释放
 		free(domain_regs[i]);
 	}

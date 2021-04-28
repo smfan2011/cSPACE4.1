@@ -28,14 +28,20 @@ int set_timer(long tv_sec,long tv_usec)
 	return 0;
 }
 
+
+unsigned int key_value = 0;
 /****************************共享内存********************************/
 
 /*创建共享内存*/
-void* init_shm(int *shmid, const char *pathname, int size)  //pathname=SHM_PATH_A
+void* init_shm(int *shmid, const char *pathname, int size, char flag)  //pathname=SHM_PATH_A
 {
+
 	void *shmaddr=NULL;
 	
-	key_t key = ftok(pathname,SHM_FLAG);
+	sleep(1);
+	key_t key = ftok(pathname, flag);
+	printf("%s\n", pathname);
+	printf("========key=====:%d\n",key);
 	if(-1 == key)
 	{
 		perror("shm_key ftok fail\n");
@@ -62,13 +68,14 @@ void* init_shm(int *shmid, const char *pathname, int size)  //pathname=SHM_PATH_
 		}
 	}
 
-	shmaddr = shmat(*shmid,NULL,0);
-	if(NULL == shmaddr)
-	{
-		perror("shmat fail \n");
-		return NULL;
-	}
-    return shmaddr;
+	printf("========id=====:%d\n",*shmid);
+        shmaddr = shmat(*shmid,NULL,0);
+        if (NULL == shmaddr) {
+                perror("shmat fail \n");
+                return NULL;
+        }
+        return shmaddr;
+
 }
 
 /*删除共享内存*/

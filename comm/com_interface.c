@@ -106,6 +106,7 @@ void unzip_compiler_process(const char* file_name, char * excutable_file)
 	char filename_without_suffix[100] = {0};
 	char compileCmd[100] = {0};
 	char compileResult[100] = {0};
+	char compileInfo[256] = {0};
 	FILE *pfd = NULL;
 	FILE *pfd1 = NULL;
 
@@ -118,15 +119,21 @@ void unzip_compiler_process(const char* file_name, char * excutable_file)
 	pfd = popen(compileCmd, "r");
 	if(pfd == NULL){
 		printf("popen %s failed!\n", compileCmd);
-		return;
+		exit(1);
 	}
+
+        bzero(compileInfo, 256);
+	while(fgets(compileInfo, 200, pfd) != NULL){
+		printf("%s\n", compileInfo);
+	}
+	pclose(pfd);
 
         bzero(compileCmd, 100);
         sprintf(compileCmd, "cat %s.log | awk \'END {print}\'", filename_without_suffix);
 	pfd1 = popen(compileCmd, "r");
 	if(pfd1 == NULL){
 		printf("popen %s failed!\n", compileCmd);
-		return;
+		exit(1);
 	}
 
 	while(fgets(compileResult, 100, pfd1) != NULL){
@@ -145,6 +152,7 @@ void unzip_compiler_process(const char* file_name, char * excutable_file)
 		}
 	}
 
+	pclose(pfd1);
 
 	return;
 }
